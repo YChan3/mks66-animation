@@ -82,6 +82,17 @@ def second_pass( commands, num_frames ):
 
     return frames
 
+def parseObj(filename):
+    """
+    This function runs an mdl script
+    """
+    p = mdl.parseFile(filename)
+
+    if p:
+        (commands, symbols) = p
+    else:
+        print "Parsing failed."
+        return
 
 def run(filename):
     """
@@ -202,5 +213,55 @@ def run(filename):
                 display(screen)
             elif c == 'save':
                 save_extension(screen, args[0])
+            elif c == 'mesh':
+                if command['constants']:
+                    reflect = command['constants']
+                add_sphere(tmp,
+                           args[0]*knob_value, args[1]*knob_value, args[2]*knob_value, args[3]*knob_value, step_3d)
+                matrix_mult( stack[-1], tmp )
+                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                tmp = []
         save_extension(screen,"./anim/" + name + ("0000" + str(i))[-4:])
         # end operation loop
+
+
+def parse_mesh(polygons,filename):
+    verticies = []
+    faces = []
+    f = open(str(filename), "r")
+    lines = f.read().split("\n")
+    for line in lines:
+        l = line.split(" ")
+        l = [x if x != "" and x != " " for x in l]
+        if l[0] == 'v':
+            theList = []
+            for i in range(1,len(l)):
+                theList.append(l[i])
+            verticies.append(theList)
+        elif l[0] == 'f':
+            theList = []
+            list2 = []
+
+            theList.append(l[1])
+            theList.append(l[2])
+            theList.append(l[3])
+            faces.append(theList)
+
+            if len(l)  = 5:
+                list2.append(l[1])
+                list2.append(l[3])
+                list2.append(l[4])
+                faces.append(list2)
+
+    print verticies
+    print faces
+
+    for face in faces:
+        points = []
+        for vertex in range(3):
+            points.append(float(verticies[int(face[vertex])-1][0]))
+            points.append(float(verticies[int(face[vertex])-1][1]))
+            points.append(float(verticies[int(face[vertex])-1][2]))
+        add_polygon(polygons, points[0], points[1], points[2],
+                              points[3], points[4], points[5],
+                              points[6], points[7], points[8],)
